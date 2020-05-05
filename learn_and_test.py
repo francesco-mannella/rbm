@@ -101,6 +101,7 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             eman.save_frame()
             eman.mk_video()
             if plot_display: plot_display()
+            print(k)
 
 
 if __name__ == "__main__": sim()
