@@ -99,7 +99,7 @@ def sim(plot_clear=None, plot_display=None):
             eman.save_frame()
             eman.mk_video()
             if plot_display: 
-                plot_display(fig1, fig2)
+                plot_display(fig, fig1)
 
 
 
