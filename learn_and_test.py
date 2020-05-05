@@ -98,8 +98,7 @@ def sim(plot_clear=None, plot_display=None):
             ax3.set_xlim([-k*(0.1),k*1.1])
             eman.save_frame()
             eman.mk_video()
-            if plot_display: 
-                plot_display(fig, fig1)
+            if plot_display: plot_display()
 
 
 
