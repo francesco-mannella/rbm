@@ -63,7 +63,6 @@ def sim(plot_clear=None, plot_display=None, kk=5):
     rbm = RBM()
     errors = np.zeros(200)
     for k in range(200):
-        print("epoca: ", k)
         rng.shuffle(x_train)  
         errs = []
         for batch in range(batch_num):
