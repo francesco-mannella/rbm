@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import glob
 from rbm import *
+from matplotlib.patches import ConnectionPatch
 
 
 class vidManager:
@@ -47,14 +48,19 @@ class vidManager:
 
 def sim(plot_clear=None, plot_display=None, kk=5):
 
-    fig = plt.figure()
-    ax1 = plt.subplot(1,2,1, aspect="equal")
+    fig = plt.figure(figsize=(6,3))
+    ax1 = plt.subplot(1,3,1, aspect="equal")
     ax1.set_axis_off()
-    iv = plt.imshow(np.zeros([28, 28]))
-    ax2 = plt.subplot(1,2,2, aspect="equal")
+    iv = plt.imshow(np.zeros([28, 28]), cmap=plt.cm.gray)
+    ax2 = plt.subplot(1,3,3, aspect="equal")
     ax2.set_axis_off()
-    ih = plt.imshow(np.zeros([8, 8]))
-     
+    ih = plt.imshow(np.zeros([8, 8]), cmap=plt.cm.gray)
+    
+    ax_3 = plt.subplot(1,3,2)
+    ax_3.set_axis_off()
+    arr = ax_3.arrow(0.1, 0.5, 0.6, 0, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
+    fig.tight_layout(h_pad=0.2, w_pad=0.2)
+
     fig1 = plt.figure()
     ax3 = plt.subplot(111)
     err_plot, = plt.plot(0,0)
@@ -85,13 +91,21 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             for i in range(10):
                 iv.set_array(v[i].reshape(28, 28))
                 iv.set_clim([np.min(v[i]), np.max(v[i])])
+                arr.remove()
+                arr = ax_3.arrow(0.1, 0.5, 0.6, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
                 vman.save_frame()
+
                 ih.set_array(h[i].reshape(10,10))
                 ih.set_clim([np.min(h[i]), np.max(h[i])])
+                arr.remove()
+                arr = ax_3.arrow(0.9, 0.5, -0.7, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
                 vman.save_frame()
-                
+            
+            arr.remove()
+            arr = ax_3.arrow(0.1, 0.5, 0.6, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')            
             iv.set_array(v[i].reshape(28, 28))
             iv.set_clim([np.min(v[i]), np.max(v[i])])
+
             vman.save_frame()
             vman.mk_video()
            
