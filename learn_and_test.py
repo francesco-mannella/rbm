@@ -51,10 +51,10 @@ def sim(plot_clear=None, plot_display=None, kk=5):
     fig = plt.figure(figsize=(6,3))
     ax1 = plt.subplot(1,3,1, aspect="equal")
     ax1.set_axis_off()
-    iv = plt.imshow(np.zeros([28, 28]), cmap=plt.cm.gray)
+    iv = plt.imshow(np.zeros([28, 28]), cmap=plt.cm.viridis)
     ax2 = plt.subplot(1,3,3, aspect="equal")
     ax2.set_axis_off()
-    ih = plt.imshow(np.zeros([8, 8]), cmap=plt.cm.gray)
+    ih = plt.imshow(np.zeros([8, 8]), cmap=plt.cm.viridis)
     
     ax_3 = plt.subplot(1,3,2)
     ax_3.set_axis_off()
@@ -85,7 +85,8 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             vman.clear()
             eman.clear()
             im = x_train[np.random.randint(0, len(x_train))].copy()
-            im[rng.randint(0, 28*28, 20*15)] = 0
+            imm = im[rng.randint(0, 28*28, int(28*28*0.5))] 
+            im[rng.randint(0, 28*28, int(28*28*0.5))]  = 1 - imm 
             v, h = rbm.test(im)
 
             for i in range(10):
