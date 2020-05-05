@@ -58,7 +58,7 @@ def sim(plot_clear=None, plot_display=None, kk=5):
     
     ax_3 = plt.subplot(1,3,2)
     ax_3.set_axis_off()
-    arr = ax_3.arrow(0.1, 0.5, 0.6, 0, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
+    arr = ax_3.arrow(0.1, 3.5, 0.6, 0, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
     fig.tight_layout(h_pad=0.2, w_pad=0.2)
 
     fig1 = plt.figure()
@@ -91,18 +91,18 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             for i in range(10):
                 iv.set_array(v[i].reshape(28, 28))
                 iv.set_clim([np.min(v[i]), np.max(v[i])])
-                arr.remove()
-                arr = ax_3.arrow(0.1, 0.5, 0.6, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
                 vman.save_frame()
+                arr.remove()
+                arr = ax_3.arrow(0.0, 0.5, 0.8, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
 
                 ih.set_array(h[i].reshape(10,10))
                 ih.set_clim([np.min(h[i]), np.max(h[i])])
-                arr.remove()
-                arr = ax_3.arrow(0.9, 0.5, -0.7, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
                 vman.save_frame()
+                arr.remove()
+                arr = ax_3.arrow(1.0, 0.5, -0.8, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
             
             arr.remove()
-            arr = ax_3.arrow(0.1, 0.5, 0.6, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')            
+            arr = ax_3.arrow(0.0, 0.5, 0.8, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')            
             iv.set_array(v[i].reshape(28, 28))
             iv.set_clim([np.min(v[i]), np.max(v[i])])
 
