@@ -74,6 +74,7 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             err = rbm.step(curr_data)
             errs.append(err)
         errors[k] = np.mean(err)
+        print(k)
         if k%kk == 0: 
             if plot_clear: plot_clear()
             vman.clear()
@@ -101,7 +102,6 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             eman.save_frame()
             eman.mk_video()
             if plot_display: plot_display()
-            print(k)
 
 
 if __name__ == "__main__": sim()
