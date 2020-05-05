@@ -73,7 +73,8 @@ class RBM:
             hs.append(h0)
 
             vp1 = sigm(np.dot(h0, self.w.T) + self.vbias)
-            v1 = rng.binomial(1,vp1) 
+            #v1 = rng.binomial(1,vp1) 
+            v1 = 1*(vp1 > 0.5)
             vs.append(v1)
              
             v0 = v1.copy()

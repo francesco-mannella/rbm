@@ -48,9 +48,11 @@ class vidManager:
 def sim(plot_clear=None, plot_display=None, kk=5):
 
     fig = plt.figure()
-    ax1 = plt.subplot(1,2,1)
+    ax1 = plt.subplot(1,2,1, aspect="equal")
+    ax1.set_axis_off()
     iv = plt.imshow(np.zeros([28, 28]))
-    ax2 = plt.subplot(1,2,2)
+    ax2 = plt.subplot(1,2,2, aspect="equal")
+    ax2.set_axis_off()
     ih = plt.imshow(np.zeros([8, 8]))
      
     fig1 = plt.figure()
@@ -72,13 +74,12 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             err = rbm.step(curr_data)
             errs.append(err)
         errors[k] = np.mean(err)
-        print(k)
         if k%kk == 0: 
             if plot_clear: plot_clear()
             vman.clear()
             eman.clear()
             im = x_train[np.random.randint(0, len(x_train))].copy()
-            im[rng.randint(0, 28*28, 10*10)] = 0
+            im[rng.randint(0, 28*28, 20*10)] = 0
             v, h = rbm.test(im)
 
             for i in range(10):
@@ -102,5 +103,5 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             if plot_display: plot_display()
 
 
-
+if __name__ == "__main__": sim()
 
