@@ -85,7 +85,7 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             vman.clear()
             eman.clear()
             im = x_train[np.random.randint(0, len(x_train))].copy()
-            im[rng.randint(0, 28*28, 20*10)] = 0
+            im[rng.randint(0, 28*28, 20*15)] = 0
             v, h = rbm.test(im)
 
             for i in range(10):
