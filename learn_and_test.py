@@ -96,6 +96,7 @@ def sim(plot_clear=None, plot_display=None, kk=5):
            
             err_plot.set_data(np.arange(k+1), errors[:(k+1)])
             ax3.set_xlim([-k*(0.1),k*1.1])
+            ax3.set_ylim([0,np.max(errors)*1.1])
             eman.save_frame()
             eman.mk_video()
             if plot_display: plot_display()
