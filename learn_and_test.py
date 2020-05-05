@@ -45,7 +45,7 @@ class vidManager:
                 save_all=True,
                 duration=self.duration, loop=0)
 
-def sim(plot_clear=None, plot_display=None):
+def sim(plot_clear=None, plot_display=None, kk=5):
 
     fig = plt.figure()
     ax1 = plt.subplot(1,2,1)
@@ -73,7 +73,7 @@ def sim(plot_clear=None, plot_display=None):
             err = rbm.step(curr_data)
             errs.append(err)
         errors[k] = np.mean(err)
-        if k%30 == 0: 
+        if k%kk == 0: 
             if plot_clear: plot_clear()
             vman.clear()
             eman.clear()
