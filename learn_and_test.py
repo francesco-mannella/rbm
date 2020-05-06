@@ -65,11 +65,17 @@ def sim(plot_clear=None, plot_display=None, kk=5):
     ax3 = plt.subplot(111)
     err_plot, = plt.plot(0,0)
 
+    rbm = RBM()
+    fig2 = rbm.get_weight_graphs()
+    
     vman = vidManager(fig, "recon")
     eman = vidManager(fig1, "error", dirname="eframes")
+    wman = vidManager(fig2, "weights", dirname="wframes")
     
-    rbm = RBM()
     errors = np.zeros(200)
+    vman.clear()
+    eman.clear()
+    wman.clear()
     for k in range(200):
         rng.shuffle(x_train)  
         errs = []
@@ -81,15 +87,17 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             errs.append(err)
         errors[k] = np.mean(err)
         if k%kk == 0: 
-            if plot_clear: plot_clear()
+            
             vman.clear()
-            eman.clear()
+            
+            if plot_clear: plot_clear()
             im = x_train[np.random.randint(0, len(x_train))].copy()
             imm = im[rng.randint(0, 28*28, int(28*28*0.2))] 
             im[rng.randint(0, 28*28, int(28*28*0.2))]  = 1 - imm 
             v, h = rbm.test(im)
 
             for i in range(10):
+
                 iv.set_array(v[i].reshape(28, 28))
                 iv.set_clim([np.min(v[i]), np.max(v[i])])
                 vman.save_frame()
@@ -115,6 +123,11 @@ def sim(plot_clear=None, plot_display=None, kk=5):
             ax3.set_ylim([0,np.max(errors)*1.1])
             eman.save_frame()
             eman.mk_video()
+            
+            rbm.get_weight_graphs()
+            wman.save_frame()
+            wman.mk_video()
+
             if plot_display: plot_display()
 
 

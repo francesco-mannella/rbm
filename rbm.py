@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import expit as sigm
+import matplotlib.gridspec as gridspec
 
 from keras.datasets import mnist
 
@@ -20,30 +21,38 @@ batch_size = data_size//batch_num
 
 class RBM:
 
-    def __init__(self, nv = 28*28, nh = 10*10, eta=0.0001):
+    def __init__(self, nv = 28*28, nh = 10*10, eta=0.00001):
 
         self.nv = nv
         self.nh = nh
         self.eta = eta
 
-        self.w = np.sqrt(6.0/(nv+nh))*rng.uniform(
-                -1,1,size=(nv, nh))
+        self.w = np.sqrt(6.0 / (nv + nh)) * \
+                rng.uniform(-1, 1, size=(nv, nh))
         self.vbias = np.zeros(self.nv)
         self.hbias = np.zeros(self.nh)
 
+        self.fig = None
 
     def step(self, inp):
         
         vp0 = sigm(inp)
         
-        # gibbs
         v0 = 1*(vp0>0.5)
+        
+
+        ## gibbs
+
+        # forward
         hp0 = sigm(np.dot(v0, self.w) + self.hbias) 
         h0 = rng.binomial(1,hp0) 
         
+        # backward
         vp1 = sigm(np.dot(h0, self.w.T) + self.vbias)
         v1 = rng.binomial(1,vp1) 
         
+
+
         # forward
         hp1 = sigm(np.dot(v1, self.w) + self.hbias)
         h1 = rng.binomial(1,hp1)
@@ -60,7 +69,6 @@ class RBM:
         
         vp0 = sigm(inp)
         
-        # gibbs
         v0 = 1*(vp0>0.5)
         
         vs = [v0]
@@ -68,12 +76,15 @@ class RBM:
 
         for k in range(k):
                 
+            ## gibbs
+
+            # forward
             hp0 = sigm(np.dot(v0, self.w) + self.hbias) 
             h0 = rng.binomial(1,hp0) 
             hs.append(h0)
-
+            
+            # backward
             vp1 = sigm(np.dot(h0, self.w.T) + self.vbias)
-            #v1 = rng.binomial(1,vp1) 
             v1 = 1*(vp1 > 0.5)
             vs.append(v1)
              
@@ -84,30 +95,55 @@ class RBM:
     def format_w(self):
 
         nv, nh = self.nv, self.nh
+        nv_side = int(np.sqrt(nv))
+        nh_side = int(np.sqrt(nh))
 
-        ww =  self.w.reshape(
-                int(np.sqrt(nv)),
-                int(np.sqrt(nv)),
-                int(np.sqrt(nh)),
-                int(np.sqrt(nh)))
+        ww =  self.w.reshape(nv_side, nv_side,
+                nh_side, nh_side)
         ww = ww.transpose(2,3,0,1)
-
         return ww
+    
+    def get_weight_graphs(self):
 
+        nh_side = int(np.sqrt(self.nh))
+        
+        if self.fig is None:
+            
+            gs1 = gridspec.GridSpec(nh_side, nh_side)
+            gs1.update(wspace=0.001, hspace=0.001) 
+            
+            self.fig = plt.figure(figsize=(8,8))
+            self.imgs = []
+            for x in range(nh_side):
+                self.imgs.append([])
+                for y in range(nh_side):
+                    ax = self.fig.add_subplot(
+                            gs1[x, y],
+                            aspect="equal")
+                    ax.set_axis_off()
+                    im = plt.imshow(np.zeros([nh_side, nh_side]))
+                    self.imgs[-1].append(im)
+        
+        w = self.format_w()
+        
+        for x in range(nh_side):
+            for y in range(nh_side):
+                ww = w[x][y]
+                self.imgs[x][y].set_array(ww)
+                self.imgs[x][y].set_clim([ww.min(), ww.max()])
+        self.fig.canvas.draw() 
+
+        return self.fig 
 
 if __name__ == "__main__":
 
     plt.ion()
 
-    imgs = []
-    for x in range(10):
-        imgs.append([])
-        for y in range(10):
-            plt.subplot(4, 4, x*4 + y + 1)
-            imgs[-1].append(plt.imshow(np.zeros([10, 10])))
+    nh = 15
     
     rbm = RBM()
     
+    errors = np.zeros(200)
     for k in range(200):
 
         rng.shuffle(x_train)  
@@ -115,18 +151,12 @@ if __name__ == "__main__":
         for batch in range(batch_num):
 
             curr_data = x_train[(batch*batch_size):((batch+1)*batch_size)]
+            errors[k] = rbm.step(curr_data)/batch_num
+        
+        print(errors[k])
 
-            err = rbm.step(curr_data)
-            
-            print(err)
-            if k%1 == 0: 
+        if k%1 == 0: 
 
-                w = rbm.format_w()
+            rbm.get_weight_graphs()
+            plt.pause(0.1)
                 
-                for x in range(10):
-                    for y in range(10):
-                        ww = w[x][y]
-                        imgs[x][y].set_array(ww)
-                        imgs[x][y].set_clim([ww.min(), ww.max()])
-
-                plt.pause(0.1)
