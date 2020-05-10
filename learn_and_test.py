@@ -1,10 +1,12 @@
 import os
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from PIL import Image
 import glob
 from rbm import *
-from matplotlib.patches import ConnectionPatch
+
 
 
 class vidManager:
@@ -19,7 +21,7 @@ class vidManager:
         self.t = 0
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)
-        files = glob.glob(self.dir + os.sep +"*")
+        files = glob.glob(self.dir + os.sep +"*.png")
         for f in files:
             if(os.path.isfile(f)):
                 os.remove(f)
@@ -46,8 +48,42 @@ class vidManager:
                 save_all=True,
                 duration=self.duration, loop=0)
 
-def sim(plot_clear=None, plot_display=None, kk=5):
+def sim():
+    
+    seed = np.frombuffer(os.urandom(4), dtype=np.uint32)[0]
+    rng = np.random.RandomState(seed) 
+    np.savetxt("seed",[seed])
 
+    
+    epochs = 300
+    test_num = 10
+    eta = 0.000005
+
+    # train ----
+    rbm = RBM() 
+    errors = np.zeros(epochs)
+    for k in range(epochs):
+        print(k)
+        rng.shuffle(x_train)  
+        errs = []
+        for batch in range(batch_num):
+
+            curr_data = x_train[(batch*batch_size):((batch+1)*batch_size)]
+
+            err = rbm.step(curr_data)
+            errs.append(err)
+        errors[k] = np.mean(err)
+
+    # test ----
+    tests = []
+    for test in range(test_num):
+        im = x_train[rng.randint(0, len(x_train))].copy()
+        imm = im[rng.randint(0, 28*28, int(28*28*0.2))] 
+        im[rng.randint(0, 28*28, int(28*28*0.2))]  = 1 - imm 
+        v, h = rbm.test(im)
+        tests.append([v, h])
+
+    # plot ----
     fig = plt.figure(figsize=(6,3))
     ax1 = plt.subplot(1,3,1, aspect="equal")
     ax1.set_axis_off()
@@ -64,72 +100,50 @@ def sim(plot_clear=None, plot_display=None, kk=5):
     fig1 = plt.figure()
     ax3 = plt.subplot(111)
     err_plot, = plt.plot(0,0)
-
-    rbm = RBM()
+    ax3.set_xlim([-epochs*0.1, epochs*1.1])
+    ax3.set_ylim([-0.25*0.1, 0.25*1.1])
+    
     fig2 = rbm.get_weight_graphs()
     
-    vman = vidManager(fig, "recon")
-    eman = vidManager(fig1, "error", dirname="eframes")
-    wman = vidManager(fig2, "weights", dirname="wframes")
-    
-    errors = np.zeros(200)
-    vman.clear()
-    eman.clear()
-    wman.clear()
-    for k in range(200):
-        rng.shuffle(x_train)  
-        errs = []
-        for batch in range(batch_num):
-
-            curr_data = x_train[(batch*batch_size):((batch+1)*batch_size)]
-
-            err = rbm.step(curr_data)
-            errs.append(err)
-        errors[k] = np.mean(err)
-        if k%kk == 0: 
-            
-            vman.clear()
-            
-            if plot_clear: plot_clear()
-            im = x_train[np.random.randint(0, len(x_train))].copy()
-            imm = im[rng.randint(0, 28*28, int(28*28*0.2))] 
-            im[rng.randint(0, 28*28, int(28*28*0.2))]  = 1 - imm 
-            v, h = rbm.test(im)
-
-            for i in range(10):
-
-                iv.set_array(v[i].reshape(28, 28))
-                iv.set_clim([np.min(v[i]), np.max(v[i])])
-                vman.save_frame()
-                arr.remove()
-                arr = ax_3.arrow(0.0, 0.5, 0.8, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
-
-                ih.set_array(h[i].reshape(10,10))
-                ih.set_clim([np.min(h[i]), np.max(h[i])])
-                vman.save_frame()
-                arr.remove()
-                arr = ax_3.arrow(1.0, 0.5, -0.8, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
-            
-            arr.remove()
-            arr = ax_3.arrow(0.0, 0.5, 0.8, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')            
+    vman = vidManager(fig, "recon", "recon")
+    eman = vidManager(fig1, "error", dirname="error")
+    wman = vidManager(fig2, "weights", dirname="weights")
+   
+    name = vman.name
+    for t in range(test_num):
+        
+        v, h = tests[t]
+        vman.name = name +"_s%08d" % t
+        for i in range(10):
             iv.set_array(v[i].reshape(28, 28))
             iv.set_clim([np.min(v[i]), np.max(v[i])])
-
             vman.save_frame()
-            vman.mk_video()
-           
-            err_plot.set_data(np.arange(k+1), errors[:(k+1)])
-            ax3.set_xlim([-k*(0.1),k*1.1])
-            ax3.set_ylim([0,np.max(errors)*1.1])
-            eman.save_frame()
-            eman.mk_video()
-            
-            rbm.get_weight_graphs()
-            wman.save_frame()
-            wman.mk_video()
+            arr.remove()
+            arr = ax_3.arrow(0.0, 0.5, 0.8, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
 
-            if plot_display: plot_display()
+            ih.set_array(h[i].reshape(10,10))
+            ih.set_clim([np.min(h[i]), np.max(h[i])])
+            vman.save_frame()
+            arr.remove()
+            arr = ax_3.arrow(1.0, 0.5, -0.8, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')
+        
+        arr.remove()
+        arr = ax_3.arrow(0.0, 0.5, 0.8, 0, lw=3, head_width=0.1, head_length=0.2, fc='#aa3333', ec='#aa3333')            
+        iv.set_array(v[i].reshape(28, 28))
+        iv.set_clim([np.min(v[i]), np.max(v[i])])
+
+        vman.save_frame()
+        vman.mk_video()
+    
+    err_plot.set_data(np.arange(k+1), errors[:(k+1)])
+    eman.save_frame()
+    eman.mk_video()
+    
+    rbm.get_weight_graphs()
+    wman.save_frame()
+    wman.mk_video()
 
 
+# main ----
 if __name__ == "__main__": sim()
 
